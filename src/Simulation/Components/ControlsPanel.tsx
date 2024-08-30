@@ -45,8 +45,8 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({
         <label>Launch Angle: {launchAngle}°</label>
         <input
           type="range"
-          min={0}
-          max={90}
+          min={1}
+          max={179}
           value={launchAngle}
           onChange={(e) => setLaunchAngle(Number(e.target.value))}
         />
@@ -55,8 +55,8 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({
         <label>Initial Velocity: {initialVelocity} m/s</label>
         <input
           type="range"
-          min={1000}
-          max={10000}
+          min={500}
+          max={20000}
           step={100}
           value={initialVelocity}
           onChange={(e) => setInitialVelocity(Number(e.target.value))}
@@ -67,7 +67,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({
         <input
           type="range"
           min={0.1}
-          max={10}
+          max={50}
           step={0.1}
           value={timeScale}
           onChange={(e) => setTimeScale(Number(e.target.value))}

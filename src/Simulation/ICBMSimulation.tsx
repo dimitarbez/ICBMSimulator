@@ -60,31 +60,71 @@ const ICBMSimulation: React.FC = () => {
   const setupMiniVisualizer = () => {
     const miniCanvas = miniCanvasRef.current!;
     const ctx = miniCanvas.getContext('2d')!;
-
-    ctx.clearRect(0, 0, miniCanvas.width, miniCanvas.height);
-
-    const gradient = ctx.createLinearGradient(0, 0, 0, miniCanvas.height);
-    gradient.addColorStop(0, '#3b82f6');
-    gradient.addColorStop(1, '#bfdbfe');
+    const width = miniCanvas.width;
+    const height = miniCanvas.height;
+    const centerX = width / 2;
+    const centerY = height / 2;
+  
+    // Clear the canvas
+    ctx.clearRect(0, 0, width, height);
+  
+    // Set background
+    ctx.fillStyle = '#001a00';
+    ctx.fillRect(0, 0, width, height);
+  
+    // Draw radar circles
+    ctx.strokeStyle = '#00ff00';
+    ctx.lineWidth = 1;
+    for (let i = 1; i <= 4; i++) {
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, (i * 50), 0, 2 * Math.PI);
+      ctx.stroke();
+    }
+  
+    // Draw radar lines
+    for (let angle = 0; angle < 360; angle += 30) {
+      const radian = (angle * Math.PI) / 180;
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(
+        centerX + Math.cos(radian) * 200,
+        centerY + Math.sin(radian) * 200
+      );
+      ctx.stroke();
+    }
+  
+    // Draw scanning line
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate((Date.now() / 1000) % (2 * Math.PI));
+    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 200);
+    gradient.addColorStop(0, 'rgba(0, 255, 0, 0.5)');
+    gradient.addColorStop(1, 'rgba(0, 255, 0, 0)');
     ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, miniCanvas.width, miniCanvas.height);
-
-    ctx.fillStyle = '#15803d';
-    ctx.fillRect(0, 200, 250, 50);
-
-    ctx.fillStyle = '#6b7280';
-    ctx.fillRect(115, 190, 20, 10);
-
-    ctx.fillStyle = 'white';
-    for (let i = 0; i < 20; i++) {
-      const x = Math.random() * 250;
-      const y = Math.random() * 180;
-      const size = Math.random() * 2 + 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.arc(0, 0, 200, 0, Math.PI / 8);
+    ctx.fill();
+    ctx.restore();
+  
+    // Draw some random blips
+    ctx.fillStyle = '#00ff00';
+    for (let i = 0; i < 5; i++) {
+      const distance = Math.random() * 200;
+      const angle = Math.random() * 2 * Math.PI;
+      const x = centerX + Math.cos(angle) * distance;
+      const y = centerY + Math.sin(angle) * distance;
+      const size = Math.random() * 3 + 1;
       ctx.beginPath();
       ctx.arc(x, y, size, 0, 2 * Math.PI);
       ctx.fill();
     }
-  };
+  
+    // Draw border
+    ctx.strokeStyle = '#336633';
+    ctx.lineWidth = 5;
+    ctx.strokeRect(0, 0, width, height);
+  };  
 
   const startSimulation = () => {
     if (!simulationState.isRunning) {
@@ -240,7 +280,7 @@ const ICBMSimulation: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '20px', backgroundColor: '#f9f9f9' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '20px' }}>
       <SimulationDisplay canvasRef={canvasRef} />
       <ControlsPanel
         miniCanvasRef={miniCanvasRef}
