@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SimulationDisplay from './Components/SimulationDisplay';
 import ControlsPanel from './Components/ControlsPanel';
-
-const G = 6.67430e-11;
+import earthImage from './Images/earth.png';
+const G = 6.6743e-11;
 const EARTH_MASS = 5.97e24;
 const EARTH_RADIUS = 6371000;
 const MISSILE_MASS = 10000.0;
@@ -27,15 +27,24 @@ const ICBMSimulation: React.FC = () => {
     positionX: EARTH_RADIUS,
     positionY: 0,
     velocityX: 0,
-    velocityY: 0,
+    velocityY: 0
   });
   const [hasCrashed, setHasCrashed] = useState(false);
-  const [trajectory, setTrajectory] = useState<{x: number, y: number}[]>([]);
+  const [trajectory, setTrajectory] = useState<{ x: number; y: number }[]>([]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const miniCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  
+  const earthImageObj = new Image();
+  earthImageObj.src = earthImage;
+
+  useEffect(() => {
+    earthImageObj.onload = () => {
+      if (canvasRef.current && miniCanvasRef.current) {
+        setupSimulation();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (canvasRef.current && miniCanvasRef.current) {
@@ -48,12 +57,20 @@ const ICBMSimulation: React.FC = () => {
     const ctx = canvas.getContext('2d')!;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw the Earth image
+    ctx.save();
     ctx.beginPath();
     ctx.arc(400, 400, 200, 0, 2 * Math.PI);
-    ctx.fillStyle = '#1d4ed8';
-    ctx.fill();
-    ctx.strokeStyle = '#60a5fa';
-    ctx.lineWidth = 2;
+    ctx.clip();
+    ctx.drawImage(earthImageObj, 170, 170, 460, 460);
+    ctx.restore();
+
+    // Draw the Earth's atmosphere
+    ctx.beginPath();
+    ctx.arc(400, 400, 200, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'rgba(0, 0, 255, 0.5)';
+    ctx.lineWidth = 5;
     ctx.stroke();
 
     setupMiniVisualizer();
@@ -66,35 +83,32 @@ const ICBMSimulation: React.FC = () => {
     const height = miniCanvas.height;
     const centerX = width / 2;
     const centerY = height / 2;
-  
+
     // Clear the canvas
     ctx.clearRect(0, 0, width, height);
-  
+
     // Set background
     ctx.fillStyle = '#001a00';
     ctx.fillRect(0, 0, width, height);
-  
+
     // Draw radar circles
     ctx.strokeStyle = '#00ff00';
     ctx.lineWidth = 1;
     for (let i = 1; i <= 4; i++) {
       ctx.beginPath();
-      ctx.arc(centerX, centerY, (i * 50), 0, 2 * Math.PI);
+      ctx.arc(centerX, centerY, i * 50, 0, 2 * Math.PI);
       ctx.stroke();
     }
-  
+
     // Draw radar lines
     for (let angle = 0; angle < 360; angle += 30) {
       const radian = (angle * Math.PI) / 180;
       ctx.beginPath();
       ctx.moveTo(centerX, centerY);
-      ctx.lineTo(
-        centerX + Math.cos(radian) * 200,
-        centerY + Math.sin(radian) * 200
-      );
+      ctx.lineTo(centerX + Math.cos(radian) * 200, centerY + Math.sin(radian) * 200);
       ctx.stroke();
     }
-  
+
     // Draw scanning line
     ctx.save();
     ctx.translate(centerX, centerY);
@@ -108,7 +122,7 @@ const ICBMSimulation: React.FC = () => {
     ctx.arc(0, 0, 200, 0, Math.PI / 8);
     ctx.fill();
     ctx.restore();
-  
+
     // Draw some random blips
     ctx.fillStyle = '#00ff00';
     for (let i = 0; i < 5; i++) {
@@ -121,23 +135,23 @@ const ICBMSimulation: React.FC = () => {
       ctx.arc(x, y, size, 0, 2 * Math.PI);
       ctx.fill();
     }
-  
+
     // Draw border
     ctx.strokeStyle = '#336633';
     ctx.lineWidth = 5;
     ctx.strokeRect(0, 0, width, height);
-  };  
+  };
 
   const startSimulation = () => {
     if (!simulationState.isRunning) {
-      const launchAngleRad = launchAngle * Math.PI / 180;
+      const launchAngleRad = (launchAngle * Math.PI) / 180;
       setSimulationState({
         isRunning: true,
         time: 0,
         positionX: EARTH_RADIUS,
         positionY: 0,
         velocityX: initialVelocity * Math.sin(launchAngleRad),
-        velocityY: initialVelocity * Math.cos(launchAngleRad),
+        velocityY: initialVelocity * Math.cos(launchAngleRad)
       });
     }
   };
@@ -153,7 +167,7 @@ const ICBMSimulation: React.FC = () => {
       positionX: EARTH_RADIUS,
       positionY: 0,
       velocityX: 0,
-      velocityY: 0,
+      velocityY: 0
     });
     setHasCrashed(false);
     setTrajectory([]);
@@ -169,20 +183,20 @@ const ICBMSimulation: React.FC = () => {
 
   const updatePosition = () => {
     if (!simulationState.isRunning && !hasCrashed) return;
-  
+
     const dt = DT * timeScale;
     const { positionX, positionY, velocityX, velocityY, time } = simulationState;
-  
+
     const r = Math.sqrt(positionX ** 2 + positionY ** 2);
-    const gravAcceleration = G * EARTH_MASS / (r ** 2);
-    const gravAccelerationX = -gravAcceleration * positionX / r;
-    const gravAccelerationY = -gravAcceleration * positionY / r;
-  
+    const gravAcceleration = (G * EARTH_MASS) / r ** 2;
+    const gravAccelerationX = (-gravAcceleration * positionX) / r;
+    const gravAccelerationY = (-gravAcceleration * positionY) / r;
+
     const newVelocityX = velocityX + gravAccelerationX * dt;
     const newVelocityY = velocityY + gravAccelerationY * dt;
     const newPositionX = positionX + newVelocityX * dt;
     const newPositionY = positionY + newVelocityY * dt;
-  
+
     if (r >= EARTH_RADIUS && !hasCrashed) {
       setSimulationState({
         ...simulationState,
@@ -190,9 +204,9 @@ const ICBMSimulation: React.FC = () => {
         positionX: newPositionX,
         positionY: newPositionY,
         velocityX: newVelocityX,
-        velocityY: newVelocityY,
+        velocityY: newVelocityY
       });
-      setTrajectory(prevTrajectory => [...prevTrajectory, { x: newPositionX, y: newPositionY }].slice(-200));
+      setTrajectory((prevTrajectory) => [...prevTrajectory, { x: newPositionX, y: newPositionY }].slice(-500));
       updateCanvasPosition(newPositionX, newPositionY);
       updateMiniVisualizer(r);
     } else if (!hasCrashed) {
@@ -206,11 +220,25 @@ const ICBMSimulation: React.FC = () => {
     const ctx = canvas.getContext('2d')!;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    setupSimulation();
+
+    // Redraw the Earth image
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(400, 400, 200, 0, 2 * Math.PI);
+    ctx.clip();
+    ctx.drawImage(earthImageObj, 170, 170, 460, 460);
+    ctx.restore();
+
+    // Redraw the Earth's atmosphere
+    ctx.beginPath();
+    ctx.arc(400, 400, 200, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.lineWidth = 5;
+    ctx.stroke();
 
     // Draw trajectory
     if (trajectory.length > 1) {
-      ctx.lineWidth = 4;
+      ctx.lineWidth = 2;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
 
@@ -288,15 +316,21 @@ const ICBMSimulation: React.FC = () => {
     ctx.fillStyle = 'white';
     ctx.beginPath();
     ctx.moveTo(tipX, tipY);
-    ctx.lineTo(baseX + rocketWidth / 2 * Math.sin(rocketAngle), baseY + rocketWidth / 2 * Math.cos(rocketAngle));
-    ctx.lineTo(baseX - rocketWidth / 2 * Math.sin(rocketAngle), baseY - rocketWidth / 2 * Math.cos(rocketAngle));
+    ctx.lineTo(baseX + (rocketWidth / 2) * Math.sin(rocketAngle), baseY + (rocketWidth / 2) * Math.cos(rocketAngle));
+    ctx.lineTo(baseX - (rocketWidth / 2) * Math.sin(rocketAngle), baseY - (rocketWidth / 2) * Math.cos(rocketAngle));
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
     ctx.fillStyle = '#bfdbfe';
     ctx.beginPath();
-    ctx.arc(baseX + rocketLength / 4 * Math.cos(rocketAngle), baseY - rocketLength / 4 * Math.sin(rocketAngle), 3, 0, 2 * Math.PI);
+    ctx.arc(
+      baseX + (rocketLength / 4) * Math.cos(rocketAngle),
+      baseY - (rocketLength / 4) * Math.sin(rocketAngle),
+      3,
+      0,
+      2 * Math.PI
+    );
     ctx.fill();
     ctx.stroke();
 
@@ -305,7 +339,7 @@ const ICBMSimulation: React.FC = () => {
     const finWidth = 5;
     ctx.beginPath();
     ctx.moveTo(baseX, baseY);
-    ctx.lineTo(baseX + finWidth / 2 * Math.cos(rocketAngle), baseY - finWidth / 2 * Math.sin(rocketAngle));
+    ctx.lineTo(baseX + (finWidth / 2) * Math.cos(rocketAngle), baseY - (finWidth / 2) * Math.sin(rocketAngle));
     ctx.lineTo(baseX + finLength * Math.sin(rocketAngle - Math.PI / 6), baseY + finLength * Math.cos(rocketAngle - Math.PI / 6));
     ctx.closePath();
     ctx.fill();
@@ -313,7 +347,7 @@ const ICBMSimulation: React.FC = () => {
 
     ctx.beginPath();
     ctx.moveTo(baseX, baseY);
-    ctx.lineTo(baseX - finWidth / 2 * Math.cos(rocketAngle), baseY + finWidth / 2 * Math.sin(rocketAngle));
+    ctx.lineTo(baseX - (finWidth / 2) * Math.cos(rocketAngle), baseY + (finWidth / 2) * Math.sin(rocketAngle));
     ctx.lineTo(baseX + finLength * Math.sin(rocketAngle + Math.PI / 6), baseY + finLength * Math.cos(rocketAngle + Math.PI / 6));
     ctx.closePath();
     ctx.fill();
@@ -324,9 +358,9 @@ const ICBMSimulation: React.FC = () => {
     const flameWidth = 8;
     ctx.beginPath();
     ctx.moveTo(baseX, baseY);
-    ctx.lineTo(baseX + flameWidth / 2 * Math.sin(rocketAngle), baseY + flameWidth / 2 * Math.cos(rocketAngle));
+    ctx.lineTo(baseX + (flameWidth / 2) * Math.sin(rocketAngle), baseY + (flameWidth / 2) * Math.cos(rocketAngle));
     ctx.lineTo(baseX - flameLength * Math.cos(rocketAngle), baseY + flameLength * Math.sin(rocketAngle));
-    ctx.lineTo(baseX - flameWidth / 2 * Math.sin(rocketAngle), baseY - flameWidth / 2 * Math.cos(rocketAngle));
+    ctx.lineTo(baseX - (flameWidth / 2) * Math.sin(rocketAngle), baseY - (flameWidth / 2) * Math.cos(rocketAngle));
     ctx.closePath();
     ctx.fill();
   };
@@ -334,34 +368,34 @@ const ICBMSimulation: React.FC = () => {
   const drawExplosion = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: number) => {
     // Create a radial gradient for a more intense, bright effect
     const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
-    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');  // White core
-    gradient.addColorStop(0.3, 'rgba(255, 255, 0, 1)');  // Bright yellow
-    gradient.addColorStop(1, 'rgba(255, 100, 0, 0.8)');  // Bright orange edge
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)'); // White core
+    gradient.addColorStop(0.3, 'rgba(255, 255, 0, 1)'); // Bright yellow
+    gradient.addColorStop(1, 'rgba(255, 100, 0, 0.8)'); // Bright orange edge
 
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, 2 * Math.PI);
-  
+
     // Apply the gradient
     ctx.fillStyle = gradient;
-  
+
     // Add an intense glow effect
     ctx.shadowColor = 'rgba(255, 200, 0, 1)';
     ctx.shadowBlur = 30;
-  
+
     ctx.fill();
-  
+
     // Bright, strong outline
     ctx.strokeStyle = '#FFFF00'; // Bright yellow
     ctx.lineWidth = 4;
     ctx.stroke();
-  
+
     // Add an extra outer glow
     ctx.beginPath();
     ctx.arc(x, y, radius + 5, 0, 2 * Math.PI);
     ctx.strokeStyle = 'rgba(255, 200, 0, 0.5)';
     ctx.lineWidth = 10;
     ctx.stroke();
-  
+
     // Reset shadow
     ctx.shadowColor = 'transparent';
     ctx.shadowBlur = 0;
@@ -378,7 +412,22 @@ const ICBMSimulation: React.FC = () => {
 
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      setupSimulation();
+
+      // Redraw the Earth image
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(400, 400, 200, 0, 2 * Math.PI);
+      ctx.clip();
+      ctx.drawImage(earthImageObj, 170, 170, 460, 460);
+      ctx.restore();
+
+      // Redraw the Earth's atmosphere
+      ctx.beginPath();
+      ctx.arc(400, 400, 200, 0, 2 * Math.PI);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+
       drawExplosion(ctx, canvasX, canvasY, radius);
       radius += animationSpeed;
 
@@ -389,7 +438,6 @@ const ICBMSimulation: React.FC = () => {
 
     animate();
   };
-
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '20px' }}>
       <SimulationDisplay canvasRef={canvasRef} />
