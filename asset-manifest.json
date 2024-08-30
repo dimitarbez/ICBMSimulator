@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/ICBMSimulator/static/css/main.339b6f48.css",
+    "main.js": "/ICBMSimulator/static/js/main.e8eb8597.js",
+    "static/js/453.ed3810f9.chunk.js": "/ICBMSimulator/static/js/453.ed3810f9.chunk.js",
+    "index.html": "/ICBMSimulator/index.html",
+    "main.339b6f48.css.map": "/ICBMSimulator/static/css/main.339b6f48.css.map",
+    "main.e8eb8597.js.map": "/ICBMSimulator/static/js/main.e8eb8597.js.map",
+    "453.ed3810f9.chunk.js.map": "/ICBMSimulator/static/js/453.ed3810f9.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.339b6f48.css",
+    "static/js/main.e8eb8597.js"
+  ]
+}
