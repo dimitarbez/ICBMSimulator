@@ -166,22 +166,22 @@ const ICBMSimulation: React.FC = () => {
   }, [simulationState]);
 
   const updatePosition = () => {
-    if (!simulationState.isRunning) return;
-
+    if (!simulationState.isRunning && !hasCrashed) return;
+  
     const dt = DT * timeScale;
     const { positionX, positionY, velocityX, velocityY, time } = simulationState;
-
+  
     const r = Math.sqrt(positionX ** 2 + positionY ** 2);
     const gravAcceleration = G * EARTH_MASS / (r ** 2);
     const gravAccelerationX = -gravAcceleration * positionX / r;
     const gravAccelerationY = -gravAcceleration * positionY / r;
-
+  
     const newVelocityX = velocityX + gravAccelerationX * dt;
     const newVelocityY = velocityY + gravAccelerationY * dt;
     const newPositionX = positionX + newVelocityX * dt;
     const newPositionY = positionY + newVelocityY * dt;
-
-    if (r >= EARTH_RADIUS) {
+  
+    if (r >= EARTH_RADIUS && !hasCrashed) {
       setSimulationState({
         ...simulationState,
         time: time + dt,
@@ -190,20 +190,15 @@ const ICBMSimulation: React.FC = () => {
         velocityX: newVelocityX,
         velocityY: newVelocityY,
       });
-
+  
       updateCanvasPosition(newPositionX, newPositionY);
       updateMiniVisualizer(r);
-    } else {
+    } else if (!hasCrashed) {
       setSimulationState({ ...simulationState, isRunning: false });
       setHasCrashed(true);
-      const canvas = canvasRef.current!;
-      const ctx = canvas.getContext('2d')!;
-      const canvasX = 400 + (newPositionX / EARTH_RADIUS) * 200;
-      const canvasY = 400 - (newPositionY / EARTH_RADIUS) * 200;
-      drawExplosion(ctx, canvasX, canvasY);
+      animateExplosion(newPositionX, newPositionY);
     }
   };
-
   const updateCanvasPosition = (x: number, y: number) => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext('2d')!;
@@ -287,26 +282,63 @@ const ICBMSimulation: React.FC = () => {
     ctx.fill();
   };
 
-  const drawExplosion = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
-    const colors = ['#ff6b6b', '#feca57', '#ff9ff3', '#ff5252'];
-    const triangles = 12;
-    const maxSize = 50;
+  const drawExplosion = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: number) => {
+    // Create a radial gradient for a more intense, bright effect
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');  // White core
+    gradient.addColorStop(0.3, 'rgba(255, 255, 0, 1)');  // Bright yellow
+    gradient.addColorStop(1, 'rgba(255, 100, 0, 0.8)');  // Bright orange edge
 
-    for (let i = 0; i < triangles; i++) {
-      const angle = (i / triangles) * Math.PI * 2;
-      const size = Math.random() * maxSize;
-      const endX = x + Math.cos(angle) * size;
-      const endY = y + Math.sin(angle) * size;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+  
+    // Apply the gradient
+    ctx.fillStyle = gradient;
+  
+    // Add an intense glow effect
+    ctx.shadowColor = 'rgba(255, 200, 0, 1)';
+    ctx.shadowBlur = 30;
+  
+    ctx.fill();
+  
+    // Bright, strong outline
+    ctx.strokeStyle = '#FFFF00'; // Bright yellow
+    ctx.lineWidth = 4;
+    ctx.stroke();
+  
+    // Add an extra outer glow
+    ctx.beginPath();
+    ctx.arc(x, y, radius + 5, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'rgba(255, 200, 0, 0.5)';
+    ctx.lineWidth = 10;
+    ctx.stroke();
+  
+    // Reset shadow
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+  };
 
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(endX, endY);
-      ctx.lineTo(endX + Math.cos(angle + Math.PI / 6) * size / 2, endY + Math.sin(angle + Math.PI / 6) * size / 2);
-      ctx.closePath();
+  const animateExplosion = (x: number, y: number) => {
+    const canvas = canvasRef.current!;
+    const ctx = canvas.getContext('2d')!;
+    const canvasX = 400 + (x / EARTH_RADIUS) * 200;
+    const canvasY = 400 - (y / EARTH_RADIUS) * 200;
+    let radius = 0;
+    const maxRadius = 50;
+    const animationSpeed = 0.1;
 
-      ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
-      ctx.fill();
-    }
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      setupSimulation();
+      drawExplosion(ctx, canvasX, canvasY, radius);
+      radius += animationSpeed;
+
+      if (radius < maxRadius) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    animate();
   };
 
   return (
