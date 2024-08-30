@@ -30,6 +30,7 @@ const ICBMSimulation: React.FC = () => {
     velocityY: 0,
   });
   const [hasCrashed, setHasCrashed] = useState(false);
+  const [trajectory, setTrajectory] = useState<{x: number, y: number}[]>([]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const miniCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -155,6 +156,7 @@ const ICBMSimulation: React.FC = () => {
       velocityY: 0,
     });
     setHasCrashed(false);
+    setTrajectory([]);
     setupSimulation();
   };
 
@@ -190,7 +192,7 @@ const ICBMSimulation: React.FC = () => {
         velocityX: newVelocityX,
         velocityY: newVelocityY,
       });
-  
+      setTrajectory(prevTrajectory => [...prevTrajectory, { x: newPositionX, y: newPositionY }].slice(-200));
       updateCanvasPosition(newPositionX, newPositionY);
       updateMiniVisualizer(r);
     } else if (!hasCrashed) {
@@ -206,12 +208,59 @@ const ICBMSimulation: React.FC = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     setupSimulation();
 
+    // Draw trajectory
+    if (trajectory.length > 1) {
+      ctx.lineWidth = 4;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      // Add glow effect
+      ctx.shadowColor = 'rgba(0, 255, 0, 0.5)';
+      ctx.shadowBlur = 10;
+
+      for (let i = 1; i < trajectory.length; i++) {
+        const start = trajectory[i - 1];
+        const end = trajectory[i];
+        const startX = 400 + (start.x / EARTH_RADIUS) * 200;
+        const startY = 400 - (start.y / EARTH_RADIUS) * 200;
+        const endX = 400 + (end.x / EARTH_RADIUS) * 200;
+        const endY = 400 - (end.y / EARTH_RADIUS) * 200;
+
+        // Create a gradient for each segment
+        const gradient = ctx.createLinearGradient(startX, startY, endX, endY);
+        const alpha = Math.min(1, (i / trajectory.length) * 2); // Fade in over the first half
+        gradient.addColorStop(0, `rgba(0, 255, 0, ${alpha * 0.2})`);
+        gradient.addColorStop(1, `rgba(0, 255, 0, ${alpha})`);
+
+        ctx.beginPath();
+        ctx.strokeStyle = gradient;
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+      }
+
+      // Reset shadow for other drawings
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+    }
+
+    // Draw current position
     const canvasX = 400 + (x / EARTH_RADIUS) * 200;
     const canvasY = 400 - (y / EARTH_RADIUS) * 200;
 
-    ctx.fillStyle = '#ef4444';
+    // Add a glow effect to the current position
+    ctx.shadowColor = '#00ff00';
+    ctx.shadowBlur = 15;
+    ctx.fillStyle = '#00ff00';
     ctx.beginPath();
     ctx.arc(canvasX, canvasY, 5, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Add a brighter core to the current position
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(canvasX, canvasY, 2, 0, 2 * Math.PI);
     ctx.fill();
   };
 
