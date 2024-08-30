@@ -1,0 +1,93 @@
+.controls-panel {
+  flex: 1;
+  max-width: 300px;
+  background-color: #1a2634;
+  color: #ecf0f1;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  padding: 20px;
+  font-family: monospace;
+}
+
+.controls-panel h2 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.controls-panel canvas {
+  width: 100%;
+  height: auto;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 2px solid #34495e;
+}
+
+.control-group {
+  margin-bottom: 15px;
+}
+
+.control-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.control-group input[type="range"] {
+  width: 100%;
+  accent-color: #e74c3c;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.button {
+  flex-grow: 1;
+  padding: 10px;
+  color: #ecf0f1;
+  border-radius: 4px;
+  border: none;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.button:not(:last-child) {
+  margin-right: 5px;
+}
+
+.button-start {
+  background-color: #27ae60;
+}
+
+.button-start:disabled {
+  background-color: #34495e;
+  cursor: not-allowed;
+}
+
+.button-pause {
+  background-color: #c0392b;
+}
+
+.button-pause:disabled {
+  background-color: #34495e;
+  cursor: not-allowed;
+}
+
+.button-reset {
+  background-color: #f39c12;
+}
+
+.simulation-status {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #bdc3c7;
+  border-top: 1px solid #34495e;
+  padding-top: 15px;
+}
