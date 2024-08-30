@@ -29,6 +29,7 @@ const ICBMSimulation: React.FC = () => {
     velocityX: 0,
     velocityY: 0,
   });
+  const [hasCrashed, setHasCrashed] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const miniCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -141,7 +142,7 @@ const ICBMSimulation: React.FC = () => {
   };
 
   const pauseSimulation = () => {
-    setSimulationState(prevState => ({ ...prevState, isRunning: false }));
+    setSimulationState((prevState: SimulationState) => ({ ...prevState, isRunning: false }));
   };
 
   const resetSimulation = () => {
@@ -153,6 +154,7 @@ const ICBMSimulation: React.FC = () => {
       velocityX: 0,
       velocityY: 0,
     });
+    setHasCrashed(false);
     setupSimulation();
   };
 
@@ -193,6 +195,12 @@ const ICBMSimulation: React.FC = () => {
       updateMiniVisualizer(r);
     } else {
       setSimulationState({ ...simulationState, isRunning: false });
+      setHasCrashed(true);
+      const canvas = canvasRef.current!;
+      const ctx = canvas.getContext('2d')!;
+      const canvasX = 400 + (newPositionX / EARTH_RADIUS) * 200;
+      const canvasY = 400 - (newPositionY / EARTH_RADIUS) * 200;
+      drawExplosion(ctx, canvasX, canvasY);
     }
   };
 
@@ -277,6 +285,28 @@ const ICBMSimulation: React.FC = () => {
     ctx.lineTo(baseX - flameWidth / 2 * Math.sin(rocketAngle), baseY - flameWidth / 2 * Math.cos(rocketAngle));
     ctx.closePath();
     ctx.fill();
+  };
+
+  const drawExplosion = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
+    const colors = ['#ff6b6b', '#feca57', '#ff9ff3', '#ff5252'];
+    const triangles = 12;
+    const maxSize = 50;
+
+    for (let i = 0; i < triangles; i++) {
+      const angle = (i / triangles) * Math.PI * 2;
+      const size = Math.random() * maxSize;
+      const endX = x + Math.cos(angle) * size;
+      const endY = y + Math.sin(angle) * size;
+
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(endX, endY);
+      ctx.lineTo(endX + Math.cos(angle + Math.PI / 6) * size / 2, endY + Math.sin(angle + Math.PI / 6) * size / 2);
+      ctx.closePath();
+
+      ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+      ctx.fill();
+    }
   };
 
   return (
