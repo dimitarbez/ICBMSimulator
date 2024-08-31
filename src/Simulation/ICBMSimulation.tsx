@@ -4,11 +4,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import SimulationDisplay from './Components/SimulationDisplay';
 import ControlsPanel from './Components/ControlsPanel';
 import earthImage from './Images/earth.png';
-const G = 6.6743e-11;
-const EARTH_MASS = 5.97e24;
-const EARTH_RADIUS = 6371000;
-const MISSILE_MASS = 10000.0;
-const DT = 0.1;
+import {
+  EARTH_RADIUS,
+  EARTH_MASS,
+  G,
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
+  EARTH_CANVAS_RADIUS,
+  EARTH_CENTER_X,
+  EARTH_CENTER_Y,
+  EARTH_IMAGE_SIZE,
+  EARTH_IMAGE_OFFSET,
+  MISSILE_MASS,
+  DT
+} from './constants';
 
 interface SimulationState {
   isRunning: boolean;
@@ -20,7 +29,7 @@ interface SimulationState {
 }
 
 const ICBMSimulation: React.FC = () => {
-  const [launchAngle, setLaunchAngle] = useState(45);
+  const [launchAngle, setLaunchAngle] = useState(10);
   const [initialVelocity, setInitialVelocity] = useState(7800);
   const [timeScale, setTimeScale] = useState(1);
   const [simulationState, setSimulationState] = useState<SimulationState>({
@@ -58,22 +67,34 @@ const ICBMSimulation: React.FC = () => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext('2d')!;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     // Draw the Earth image
     ctx.save();
     ctx.beginPath();
-    ctx.arc(400, 400, 200, 0, 2 * Math.PI);
+    ctx.arc(EARTH_CENTER_X, EARTH_CENTER_Y, EARTH_CANVAS_RADIUS, 0, 2 * Math.PI);
     ctx.clip();
-    ctx.drawImage(earthImageObj, 170, 170, 460, 460);
+    ctx.drawImage(
+      earthImageObj,
+      EARTH_CENTER_X - EARTH_IMAGE_SIZE / 2 + EARTH_IMAGE_OFFSET,
+      EARTH_CENTER_Y - EARTH_IMAGE_SIZE / 2 + EARTH_IMAGE_OFFSET,
+      EARTH_IMAGE_SIZE,
+      EARTH_IMAGE_SIZE
+    );
     ctx.restore();
 
-    // Draw the Earth's atmosphere
+    // Redraw the Earth's atmosphere with inner and outer glow
     ctx.beginPath();
-    ctx.arc(400, 400, 200, 0, 2 * Math.PI);
-    ctx.strokeStyle = 'rgba(0, 0, 255, 0.5)';
-    ctx.lineWidth = 5;
-    ctx.stroke();
+    ctx.arc(EARTH_CENTER_X, EARTH_CENTER_Y, EARTH_CANVAS_RADIUS, 0, 2 * Math.PI);
+    const gradient = ctx.createRadialGradient(
+      EARTH_CENTER_X, EARTH_CENTER_Y, EARTH_CANVAS_RADIUS - 10,
+      EARTH_CENTER_X, EARTH_CENTER_Y, EARTH_CANVAS_RADIUS + 20
+    );
+    gradient.addColorStop(0, 'rgba(0, 100, 255, 0)');
+    gradient.addColorStop(0.5, 'rgba(0, 100, 255, 0.3)');
+    gradient.addColorStop(1, 'rgba(0, 100, 255, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fill();
 
     setupMiniVisualizer();
   };
@@ -217,26 +238,39 @@ const ICBMSimulation: React.FC = () => {
       animateExplosion(newPositionX, newPositionY);
     }
   };
+  
   const updateCanvasPosition = (x: number, y: number) => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext('2d')!;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     // Redraw the Earth image
     ctx.save();
     ctx.beginPath();
-    ctx.arc(400, 400, 200, 0, 2 * Math.PI);
+    ctx.arc(EARTH_CENTER_X, EARTH_CENTER_Y, EARTH_CANVAS_RADIUS, 0, 2 * Math.PI);
     ctx.clip();
-    ctx.drawImage(earthImageObj, 170, 170, 460, 460);
+    ctx.drawImage(
+      earthImageObj,
+      EARTH_CENTER_X - EARTH_IMAGE_SIZE / 2 + EARTH_IMAGE_OFFSET,
+      EARTH_CENTER_Y - EARTH_IMAGE_SIZE / 2 + EARTH_IMAGE_OFFSET,
+      EARTH_IMAGE_SIZE,
+      EARTH_IMAGE_SIZE
+    );
     ctx.restore();
 
-    // Redraw the Earth's atmosphere
+    // Redraw the Earth's atmosphere with inner and outer glow
     ctx.beginPath();
-    ctx.arc(400, 400, 200, 0, 2 * Math.PI);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-    ctx.lineWidth = 5;
-    ctx.stroke();
+    ctx.arc(EARTH_CENTER_X, EARTH_CENTER_Y, EARTH_CANVAS_RADIUS, 0, 2 * Math.PI);
+    const gradient = ctx.createRadialGradient(
+      EARTH_CENTER_X, EARTH_CENTER_Y, EARTH_CANVAS_RADIUS - 10,
+      EARTH_CENTER_X, EARTH_CENTER_Y, EARTH_CANVAS_RADIUS + 20
+    );
+    gradient.addColorStop(0, 'rgba(0, 100, 255, 0)');
+    gradient.addColorStop(0.5, 'rgba(0, 100, 255, 0.3)');
+    gradient.addColorStop(1, 'rgba(0, 100, 255, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fill();
 
     // Draw trajectory
     if (trajectory.length > 1) {
@@ -251,10 +285,10 @@ const ICBMSimulation: React.FC = () => {
       for (let i = 1; i < trajectory.length; i++) {
         const start = trajectory[i - 1];
         const end = trajectory[i];
-        const startX = 400 + (start.x / EARTH_RADIUS) * 200;
-        const startY = 400 - (start.y / EARTH_RADIUS) * 200;
-        const endX = 400 + (end.x / EARTH_RADIUS) * 200;
-        const endY = 400 - (end.y / EARTH_RADIUS) * 200;
+        const startX = EARTH_CENTER_X + (start.x / EARTH_RADIUS) * EARTH_CANVAS_RADIUS;
+        const startY = EARTH_CENTER_Y - (start.y / EARTH_RADIUS) * EARTH_CANVAS_RADIUS;
+        const endX = EARTH_CENTER_X + (end.x / EARTH_RADIUS) * EARTH_CANVAS_RADIUS;
+        const endY = EARTH_CENTER_Y - (end.y / EARTH_RADIUS) * EARTH_CANVAS_RADIUS;
 
         // Create a gradient for each segment
         const gradient = ctx.createLinearGradient(startX, startY, endX, endY);
@@ -275,8 +309,8 @@ const ICBMSimulation: React.FC = () => {
     }
 
     // Draw current position
-    const canvasX = 400 + (x / EARTH_RADIUS) * 200;
-    const canvasY = 400 - (y / EARTH_RADIUS) * 200;
+    const canvasX = EARTH_CENTER_X + (x / EARTH_RADIUS) * EARTH_CANVAS_RADIUS;
+    const canvasY = EARTH_CENTER_Y - (y / EARTH_RADIUS) * EARTH_CANVAS_RADIUS;
 
     // Add a glow effect to the current position
     ctx.shadowColor = '#00ff00';
@@ -406,26 +440,32 @@ const ICBMSimulation: React.FC = () => {
   const animateExplosion = (x: number, y: number) => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext('2d')!;
-    const canvasX = 400 + (x / EARTH_RADIUS) * 200;
-    const canvasY = 400 - (y / EARTH_RADIUS) * 200;
+    const canvasX = EARTH_CENTER_X + (x / EARTH_RADIUS) * EARTH_CANVAS_RADIUS;
+    const canvasY = EARTH_CENTER_Y - (y / EARTH_RADIUS) * EARTH_CANVAS_RADIUS;
     let radius = 0;
     const maxRadius = 50;
     const animationSpeed = 0.1;
 
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
       // Redraw the Earth image
       ctx.save();
       ctx.beginPath();
-      ctx.arc(400, 400, 200, 0, 2 * Math.PI);
+      ctx.arc(EARTH_CENTER_X, EARTH_CENTER_Y, EARTH_CANVAS_RADIUS, 0, 2 * Math.PI);
       ctx.clip();
-      ctx.drawImage(earthImageObj, 170, 170, 460, 460);
+      ctx.drawImage(
+        earthImageObj,
+        EARTH_CENTER_X - EARTH_IMAGE_SIZE / 2 + EARTH_IMAGE_OFFSET,
+        EARTH_CENTER_Y - EARTH_IMAGE_SIZE / 2 + EARTH_IMAGE_OFFSET,
+        EARTH_IMAGE_SIZE,
+        EARTH_IMAGE_SIZE
+      );
       ctx.restore();
 
       // Redraw the Earth's atmosphere
       ctx.beginPath();
-      ctx.arc(400, 400, 200, 0, 2 * Math.PI);
+      ctx.arc(EARTH_CENTER_X, EARTH_CENTER_Y, EARTH_CANVAS_RADIUS, 0, 2 * Math.PI);
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
       ctx.lineWidth = 5;
       ctx.stroke();
@@ -444,7 +484,7 @@ const ICBMSimulation: React.FC = () => {
     <div className="container">
       <div className="row">
         <div className="col-md-6 my-3">
-          <SimulationDisplay canvasRef={canvasRef} />
+          <SimulationDisplay canvasRef={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} />
         </div>
         <div className="col-md-6 my-3">
           <ControlsPanel

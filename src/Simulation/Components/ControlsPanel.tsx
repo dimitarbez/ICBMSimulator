@@ -56,7 +56,7 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({
         <input
           type="range"
           min={500}
-          max={20000}
+          max={12000}
           step={100}
           value={initialVelocity}
           onChange={(e) => setInitialVelocity(Number(e.target.value))}
@@ -96,10 +96,10 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({
         </button>
       </div>
       <div className="simulation-status">
-        <p>Time: {simulationState.time.toFixed(2)} s</p>
-        <p>Altitude: {(Math.sqrt(simulationState.positionX ** 2 + simulationState.positionY ** 2) - EARTH_RADIUS).toFixed(2)} m</p>
-        <p>Velocity: {Math.sqrt(simulationState.velocityX ** 2 + simulationState.velocityY ** 2).toFixed(2)} m/s</p>
-        <p>Angle: {(Math.atan2(simulationState.positionY, simulationState.positionX) * 180 / Math.PI).toFixed(2)}°</p>
+        <p>Time: {simulationState.time.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} s</p>
+        <p>Altitude: {(Math.sqrt(simulationState.positionX ** 2 + simulationState.positionY ** 2) - EARTH_RADIUS).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m</p>
+        <p>Velocity: {Math.sqrt(simulationState.velocityX ** 2 + simulationState.velocityY ** 2).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m/s</p>
+        <p>Angle: {(Math.atan2(simulationState.positionY, simulationState.positionX) * 180 / Math.PI).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}°</p>
       </div>
     </div>
   );
