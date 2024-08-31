@@ -87,8 +87,12 @@ const ICBMSimulation: React.FC = () => {
     ctx.beginPath();
     ctx.arc(EARTH_CENTER_X, EARTH_CENTER_Y, EARTH_CANVAS_RADIUS, 0, 2 * Math.PI);
     const gradient = ctx.createRadialGradient(
-      EARTH_CENTER_X, EARTH_CENTER_Y, EARTH_CANVAS_RADIUS - 10,
-      EARTH_CENTER_X, EARTH_CENTER_Y, EARTH_CANVAS_RADIUS + 20
+      EARTH_CENTER_X,
+      EARTH_CENTER_Y,
+      EARTH_CANVAS_RADIUS - 10,
+      EARTH_CENTER_X,
+      EARTH_CENTER_Y,
+      EARTH_CANVAS_RADIUS + 20
     );
     gradient.addColorStop(0, 'rgba(0, 100, 255, 0)');
     gradient.addColorStop(0.5, 'rgba(0, 100, 255, 0.3)');
@@ -238,7 +242,7 @@ const ICBMSimulation: React.FC = () => {
       animateExplosion(newPositionX, newPositionY);
     }
   };
-  
+
   const updateCanvasPosition = (x: number, y: number) => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext('2d')!;
@@ -263,8 +267,12 @@ const ICBMSimulation: React.FC = () => {
     ctx.beginPath();
     ctx.arc(EARTH_CENTER_X, EARTH_CENTER_Y, EARTH_CANVAS_RADIUS, 0, 2 * Math.PI);
     const gradient = ctx.createRadialGradient(
-      EARTH_CENTER_X, EARTH_CENTER_Y, EARTH_CANVAS_RADIUS - 10,
-      EARTH_CENTER_X, EARTH_CENTER_Y, EARTH_CANVAS_RADIUS + 20
+      EARTH_CENTER_X,
+      EARTH_CENTER_Y,
+      EARTH_CANVAS_RADIUS - 10,
+      EARTH_CENTER_X,
+      EARTH_CENTER_Y,
+      EARTH_CANVAS_RADIUS + 20
     );
     gradient.addColorStop(0, 'rgba(0, 100, 255, 0)');
     gradient.addColorStop(0.5, 'rgba(0, 100, 255, 0.3)');
@@ -481,27 +489,25 @@ const ICBMSimulation: React.FC = () => {
     animate();
   };
   return (
-    <div className="container">
-      <div className="row">
-        <div className="col-md-6 my-3">
-          <SimulationDisplay canvasRef={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} />
-        </div>
-        <div className="col-md-6 my-3">
-          <ControlsPanel
-            miniCanvasRef={miniCanvasRef}
-            launchAngle={launchAngle}
-            setLaunchAngle={setLaunchAngle}
-            initialVelocity={initialVelocity}
-            setInitialVelocity={setInitialVelocity}
-            timeScale={timeScale}
-            setTimeScale={setTimeScale}
-            startSimulation={startSimulation}
-            pauseSimulation={pauseSimulation}
-            resetSimulation={resetSimulation}
-            simulationState={simulationState}
-            EARTH_RADIUS={EARTH_RADIUS}
-          />
-        </div>
+    <div className="row">
+      <div className="col-12 col-md-8 my-3">
+        <SimulationDisplay canvasRef={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} />
+      </div>
+      <div className="col-12 col-md-4 my-3">
+        <ControlsPanel
+          miniCanvasRef={miniCanvasRef}
+          launchAngle={launchAngle}
+          setLaunchAngle={setLaunchAngle}
+          initialVelocity={initialVelocity}
+          setInitialVelocity={setInitialVelocity}
+          timeScale={timeScale}
+          setTimeScale={setTimeScale}
+          startSimulation={startSimulation}
+          pauseSimulation={pauseSimulation}
+          resetSimulation={resetSimulation}
+          simulationState={simulationState}
+          EARTH_RADIUS={EARTH_RADIUS}
+        />
       </div>
     </div>
   );

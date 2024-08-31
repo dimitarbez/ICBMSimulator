@@ -1,6 +1,7 @@
 .controls-panel {
     flex: 1;
     max-width: 100%;
+    height: 100%;
     background-color: #1a2634;
     color: #ecf0f1;
     border-radius: 8px;
