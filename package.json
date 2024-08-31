@@ -18,13 +18,14 @@
   },
   "homepage": "https://dimitarbez.github.io/ICBMSimulator",
   "scripts": {
-    
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --debug",
+    "lint:fix": "eslint src/**/*.{js,jsx,ts,tsx} --fix"
   },
   "eslintConfig": {
     "extends": [
