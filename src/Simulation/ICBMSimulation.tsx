@@ -31,7 +31,7 @@ interface SimulationState {
 const ICBMSimulation: React.FC = () => {
   const [launchAngle, setLaunchAngle] = useState(10);
   const [initialVelocity, setInitialVelocity] = useState(7800);
-  const [timeScale, setTimeScale] = useState(10);
+  const [timeScale, setTimeScale] = useState(20);
   const [simulationState, setSimulationState] = useState<SimulationState>({
     isRunning: false,
     time: 0,
