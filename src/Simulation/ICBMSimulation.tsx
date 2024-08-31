@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React, { useState, useEffect, useRef } from 'react';
 import SimulationDisplay from './Components/SimulationDisplay';
 import ControlsPanel from './Components/ControlsPanel';

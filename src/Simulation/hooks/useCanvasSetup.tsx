@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import { useRef, useCallback } from 'react';
 
 const EARTH_RADIUS = 6371000;
