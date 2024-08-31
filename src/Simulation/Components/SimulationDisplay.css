@@ -1,4 +1,4 @@
-.controls-panel {
+.simulation-display {
   flex: 1;
   max-width: 300px;
   background-color: #1a2634;
@@ -9,7 +9,7 @@
   font-family: monospace;
 }
 
-.controls-panel h2 {
+.simulation-display h2 {
   font-size: 20px;
   font-weight: bold;
   margin-bottom: 20px;
@@ -18,7 +18,7 @@
   letter-spacing: 2px;
 }
 
-.controls-panel canvas {
+.simulation-display canvas {
   width: 100%;
   height: auto;
   margin-bottom: 20px;

@@ -1,6 +1,6 @@
 .controls-panel {
     flex: 1;
-    max-width: 300px;
+    max-width: 100%;
     background-color: #1a2634;
     color: #ecf0f1;
     border-radius: 8px;
@@ -19,7 +19,7 @@
   }
   
   .controls-panel canvas {
-    width: 100%;
+    width: 50%;
     height: auto;
     margin-bottom: 20px;
     border-radius: 8px;

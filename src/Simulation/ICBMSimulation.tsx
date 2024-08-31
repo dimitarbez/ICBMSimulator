@@ -441,22 +441,28 @@ const ICBMSimulation: React.FC = () => {
     animate();
   };
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '20px' }}>
-      <SimulationDisplay canvasRef={canvasRef} />
-      <ControlsPanel
-        miniCanvasRef={miniCanvasRef}
-        launchAngle={launchAngle}
-        setLaunchAngle={setLaunchAngle}
-        initialVelocity={initialVelocity}
-        setInitialVelocity={setInitialVelocity}
-        timeScale={timeScale}
-        setTimeScale={setTimeScale}
-        startSimulation={startSimulation}
-        pauseSimulation={pauseSimulation}
-        resetSimulation={resetSimulation}
-        simulationState={simulationState}
-        EARTH_RADIUS={EARTH_RADIUS}
-      />
+    <div className="container">
+      <div className="row">
+        <div className="col-md-6 my-3">
+          <SimulationDisplay canvasRef={canvasRef} />
+        </div>
+        <div className="col-md-6 my-3">
+          <ControlsPanel
+            miniCanvasRef={miniCanvasRef}
+            launchAngle={launchAngle}
+            setLaunchAngle={setLaunchAngle}
+            initialVelocity={initialVelocity}
+            setInitialVelocity={setInitialVelocity}
+            timeScale={timeScale}
+            setTimeScale={setTimeScale}
+            startSimulation={startSimulation}
+            pauseSimulation={pauseSimulation}
+            resetSimulation={resetSimulation}
+            simulationState={simulationState}
+            EARTH_RADIUS={EARTH_RADIUS}
+          />
+        </div>
+      </div>
     </div>
   );
 };
