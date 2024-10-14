@@ -85,18 +85,16 @@ The current simulation models the missile's motion using:
 
 ## 💡 Ways to Contribute
 
-We encourage contributions to extend the simulation’s functionality. Here are some ideas:
-
 ### 1. **Add Air Drag and Atmospheric Effects**
    - **Feature**: Implement air drag to simulate how air resistance slows the missile down as it passes through the atmosphere.
    - **Improvement**: Introduce altitude-dependent air density using the barometric formula to make drag realistic at different altitudes:
-     \[
-     \rho(h) = \rho_0 \cdot e^{-\frac{h}{H}}
-     \]
+     ```
+     rho(h) = rho_0 * e^(-h / H)
+     ```
      where:
-     - \( \rho_0 \) is sea-level air density (1.225 kg/m³).
-     - \( h \) is the altitude.
-     - \( H \) is the scale height (about 8,500 meters).
+     - `rho_0` is sea-level air density (1.225 kg/m³).
+     - `h` is the altitude.
+     - `H` is the scale height (about 8,500 meters).
 
 ### 2. **Model Wind Effects**
    - **Feature**: Add wind dynamics to simulate lateral forces on the missile.
