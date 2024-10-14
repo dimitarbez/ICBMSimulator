@@ -1,46 +1,91 @@
-# Getting Started with Create React App
+# ICBM Trajectory Simulation
+
+This project is an interactive simulation of an Intercontinental Ballistic Missile (ICBM) launch and its inertial trajectory. The simulation models the physics of the missile's flight in a vacuum-like environment, including the effects of gravity, air drag (up to the edge of the atmosphere), and altitude-dependent air density.
+
+## Key Features
+
+- **Inertial Phase Simulation**: The missile is modeled after it reaches its initial velocity, with no active thrust. The simulation takes into account the effects of Earth's gravity and atmospheric drag during the missile's flight.
+- **Realistic Earth Representation**: The Earth is accurately represented, including curvature, and the atmosphere's effects on drag and air density.
+- **Air Density Simulation**: The air density decreases with altitude based on a scale height model.
+- **Real-time Visualization**: The missile's trajectory is visualized in real time, along with the changing altitude and speed as it moves through different atmospheric layers.
+
+## Getting Started
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/dimitarbez/ICBMSimulator.git
+   ```
+
+2. **Navigate into the project directory:**
+   ```bash
+   cd ICBMSimulator
+   ```
+
+3. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+4. **Run the app in development mode:**
+   ```bash
+   npm start
+   ```
+   The app will be available at [http://localhost:3000](http://localhost:3000).
+
+### Available Scripts
 
 In the project directory, you can run:
 
-### `npm start`
+#### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Runs the app in development mode. The page will automatically reload if you make edits, and you will also see any lint errors in the console.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+#### `npm run build`
 
-### `npm test`
+Builds the app for production. The build will be optimized for the best performance, including minified and hashed filenames for assets.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+#### `npm test`
 
-### `npm run build`
+Launches the test runner in interactive watch mode.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Simulation Details
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Physics Model
+The simulation models the missile's motion under the following conditions:
+- **Initial Velocity**: The missile is launched with an initial velocity set by the user.
+- **Gravity**: The gravitational force acts on the missile, decreasing with altitude following the inverse-square law.
+- **Air Drag**: The missile experiences air drag as it ascends, with air density decreasing exponentially with altitude.
+- **No Thrust Phase**: After launch, the missile experiences no additional thrust, and its motion is purely inertial with gravity and drag forces acting on it.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Constants Used
+- **Earth's Radius**: `6,371,000 meters`
+- **Earth's Mass**: `5.972 × 10^24 kg`
+- **Gravitational Constant (G)**: `6.67430 × 10^-11 m³/kg/s²`
+- **Atmospheric Scale Height**: `8,500 meters`
+- **Sea Level Air Density**: `1.225 kg/m³`
 
-### `npm run eject`
+### Adjusting the Simulation
+- You can adjust the launch angle, initial velocity, and time scaling to observe different trajectories.
+- The missile’s trajectory is visualized as it moves away from the Earth’s surface, and the effects of gravity and drag are visible as the trajectory curves.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Using the Simulator
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+1. **Adjust Launch Parameters**: Use the control panel to set the launch angle (in degrees) and the initial velocity (in m/s).
+2. **Start Simulation**: Click the "Start" button to launch the missile and view its trajectory.
+3. **Pause and Reset**: You can pause the simulation or reset it to try different initial conditions.
+4. **Visualization**: The missile’s current position is displayed, and its trajectory is drawn in real-time. The effects of drag and gravity are visualized as the missile ascends and curves along its trajectory.
 
 ## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+To learn more about how missile trajectories are calculated, you can explore resources on:
+- Orbital mechanics
+- Atmospheric drag and air density models
+- The physics of missile launches
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Contributing
+
+If you'd like to contribute to the project, please fork the repository and use a feature branch. Pull requests are warmly welcome.
