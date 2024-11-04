@@ -1,5 +1,5 @@
 # 🚀 ICBM Trajectory Simulation
-## https://icbmsimulator.com/
+## [Visit App](https://icbmsimulator.com/)
 
 An interactive simulation of an Intercontinental Ballistic Missile (ICBM) launch, focusing on the missile’s inertial trajectory under the influence of **gravity**. This project offers a great foundation for building advanced missile simulations, and contributions are welcome to extend its features!
 
