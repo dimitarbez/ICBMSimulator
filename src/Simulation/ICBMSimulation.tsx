@@ -44,21 +44,20 @@ const ICBMSimulation: React.FC = () => {
   const [trajectory, setTrajectory] = useState<{ x: number; y: number }[]>([]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const miniCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const earthImageObj = new Image();
   earthImageObj.src = earthImage;
 
   useEffect(() => {
     earthImageObj.onload = () => {
-      if (canvasRef.current && miniCanvasRef.current) {
+      if (canvasRef.current) {
         setupSimulation();
       }
     };
   }, []);
 
   useEffect(() => {
-    if (canvasRef.current && miniCanvasRef.current) {
+    if (canvasRef.current) {
       setupSimulation();
     }
   }, []);
@@ -99,74 +98,6 @@ const ICBMSimulation: React.FC = () => {
     gradient.addColorStop(1, 'rgba(0, 100, 255, 0)');
     ctx.fillStyle = gradient;
     ctx.fill();
-
-    setupMiniVisualizer();
-  };
-
-  const setupMiniVisualizer = () => {
-    const miniCanvas = miniCanvasRef.current!;
-    const ctx = miniCanvas.getContext('2d')!;
-    const width = miniCanvas.width;
-    const height = miniCanvas.height;
-    const centerX = width / 2;
-    const centerY = height / 2;
-
-    // Clear the canvas
-    ctx.clearRect(0, 0, width, height);
-
-    // Set background
-    ctx.fillStyle = '#001a00';
-    ctx.fillRect(0, 0, width, height);
-
-    // Draw radar circles
-    ctx.strokeStyle = '#00ff00';
-    ctx.lineWidth = 1;
-    for (let i = 1; i <= 4; i++) {
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, i * 50, 0, 2 * Math.PI);
-      ctx.stroke();
-    }
-
-    // Draw radar lines
-    for (let angle = 0; angle < 360; angle += 30) {
-      const radian = (angle * Math.PI) / 180;
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY);
-      ctx.lineTo(centerX + Math.cos(radian) * 200, centerY + Math.sin(radian) * 200);
-      ctx.stroke();
-    }
-
-    // Draw scanning line
-    ctx.save();
-    ctx.translate(centerX, centerY);
-    ctx.rotate((Date.now() / 1000) % (2 * Math.PI));
-    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 200);
-    gradient.addColorStop(0, 'rgba(0, 255, 0, 0.5)');
-    gradient.addColorStop(1, 'rgba(0, 255, 0, 0)');
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.arc(0, 0, 200, 0, Math.PI / 8);
-    ctx.fill();
-    ctx.restore();
-
-    // Draw some random blips
-    ctx.fillStyle = '#00ff00';
-    for (let i = 0; i < 5; i++) {
-      const distance = Math.random() * 200;
-      const angle = Math.random() * 2 * Math.PI;
-      const x = centerX + Math.cos(angle) * distance;
-      const y = centerY + Math.sin(angle) * distance;
-      const size = Math.random() * 3 + 1;
-      ctx.beginPath();
-      ctx.arc(x, y, size, 0, 2 * Math.PI);
-      ctx.fill();
-    }
-
-    // Draw border
-    ctx.strokeStyle = '#336633';
-    ctx.lineWidth = 5;
-    ctx.strokeRect(0, 0, width, height);
   };
 
   const startSimulation = () => {
@@ -235,7 +166,6 @@ const ICBMSimulation: React.FC = () => {
       });
       setTrajectory((prevTrajectory) => [...prevTrajectory, { x: newPositionX, y: newPositionY }].slice(-500));
       updateCanvasPosition(newPositionX, newPositionY);
-      updateMiniVisualizer(r);
     } else if (!hasCrashed) {
       setSimulationState({ ...simulationState, isRunning: false });
       setHasCrashed(true);
@@ -336,79 +266,6 @@ const ICBMSimulation: React.FC = () => {
     ctx.fill();
   };
 
-  const updateMiniVisualizer = (r: number) => {
-    const miniCanvas = miniCanvasRef.current!;
-    const ctx = miniCanvas.getContext('2d')!;
-
-    ctx.clearRect(0, 0, 250, 200);
-    setupMiniVisualizer();
-
-    const angle = Math.atan2(simulationState.positionY, simulationState.positionX);
-    const distance = r - EARTH_RADIUS;
-    const maxVisualDistance = 180;
-    const visualDistance = Math.min(maxVisualDistance, distance / 50000);
-
-    const rocketLength = 30;
-    const rocketWidth = 10;
-    const baseX = 125;
-    const baseY = 200 - visualDistance;
-    const rocketAngle = angle + Math.PI / 2;
-
-    const tipX = baseX + rocketLength * Math.cos(rocketAngle);
-    const tipY = baseY - rocketLength * Math.sin(rocketAngle);
-
-    ctx.fillStyle = 'white';
-    ctx.beginPath();
-    ctx.moveTo(tipX, tipY);
-    ctx.lineTo(baseX + (rocketWidth / 2) * Math.sin(rocketAngle), baseY + (rocketWidth / 2) * Math.cos(rocketAngle));
-    ctx.lineTo(baseX - (rocketWidth / 2) * Math.sin(rocketAngle), baseY - (rocketWidth / 2) * Math.cos(rocketAngle));
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#bfdbfe';
-    ctx.beginPath();
-    ctx.arc(
-      baseX + (rocketLength / 4) * Math.cos(rocketAngle),
-      baseY - (rocketLength / 4) * Math.sin(rocketAngle),
-      3,
-      0,
-      2 * Math.PI
-    );
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#ef4444';
-    const finLength = 10;
-    const finWidth = 5;
-    ctx.beginPath();
-    ctx.moveTo(baseX, baseY);
-    ctx.lineTo(baseX + (finWidth / 2) * Math.cos(rocketAngle), baseY - (finWidth / 2) * Math.sin(rocketAngle));
-    ctx.lineTo(baseX + finLength * Math.sin(rocketAngle - Math.PI / 6), baseY + finLength * Math.cos(rocketAngle - Math.PI / 6));
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(baseX, baseY);
-    ctx.lineTo(baseX - (finWidth / 2) * Math.cos(rocketAngle), baseY + (finWidth / 2) * Math.sin(rocketAngle));
-    ctx.lineTo(baseX + finLength * Math.sin(rocketAngle + Math.PI / 6), baseY + finLength * Math.cos(rocketAngle + Math.PI / 6));
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#f97316';
-    const flameLength = Math.random() * 10 + 15;
-    const flameWidth = 8;
-    ctx.beginPath();
-    ctx.moveTo(baseX, baseY);
-    ctx.lineTo(baseX + (flameWidth / 2) * Math.sin(rocketAngle), baseY + (flameWidth / 2) * Math.cos(rocketAngle));
-    ctx.lineTo(baseX - flameLength * Math.cos(rocketAngle), baseY + flameLength * Math.sin(rocketAngle));
-    ctx.lineTo(baseX - (flameWidth / 2) * Math.sin(rocketAngle), baseY - (flameWidth / 2) * Math.cos(rocketAngle));
-    ctx.closePath();
-    ctx.fill();
-  };
-
   const drawExplosion = (ctx: CanvasRenderingContext2D, x: number, y: number, radius: number) => {
     // Create a radial gradient for a more intense, bright effect
     const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
@@ -495,7 +352,6 @@ const ICBMSimulation: React.FC = () => {
       </div>
       <div className="col-12 col-md-4 my-3">
         <ControlsPanel
-          miniCanvasRef={miniCanvasRef}
           launchAngle={launchAngle}
           setLaunchAngle={setLaunchAngle}
           initialVelocity={initialVelocity}

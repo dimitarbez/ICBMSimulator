@@ -2,7 +2,6 @@ import React, { RefObject } from 'react';
 import './ControlsPanel.css'; // Make sure to import the CSS file
 
 interface ControlsPanelProps {
-  miniCanvasRef: RefObject<HTMLCanvasElement>;
   launchAngle: number;
   setLaunchAngle: (value: number) => void;
   initialVelocity: number;
@@ -31,7 +30,6 @@ const scrollToTop = () => {
 };
 
 const ControlsPanel: React.FC<ControlsPanelProps> = ({
-  miniCanvasRef,
   launchAngle,
   setLaunchAngle,
   initialVelocity,
@@ -47,7 +45,6 @@ const ControlsPanel: React.FC<ControlsPanelProps> = ({
   return (
     <div className="controls-panel">
       <h2>Mission Control</h2>
-      <canvas style={{ display: 'none' }} ref={miniCanvasRef} width={250} height={250} />
       <div className="control-group">
         <label>Launch Angle: {launchAngle}°</label>
         <input type="range" min={1} max={179} value={launchAngle} onChange={(e) => setLaunchAngle(Number(e.target.value))} />
