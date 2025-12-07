@@ -1,4 +1,4 @@
-import React, { RefObject } from 'react';
+import React from 'react';
 import './ControlsPanel.css'; // Make sure to import the CSS file
 
 interface ControlsPanelProps {
